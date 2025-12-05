@@ -4,12 +4,14 @@ import json
 import datetime
 from pathlib import Path
 
+
 app = Flask(__name__)
 
 # Directorio para almacenamiento persistente
 DATA_DIR = Path("/app/data")
 DATA_DIR.mkdir(exist_ok=True)
 MESSAGES_FILE = DATA_DIR / "messages.json"
+
 
 def load_messages():
     """Carga mensajes desde el archivo persistente"""
