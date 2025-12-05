@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: cloudedu-service-monitor
+  namespace: cloudedu-services
+  labels:
+    app: cloudedu-app
+    release: prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: cloudedu-app
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: cloudedu-alerts
+  namespace: cloudedu-services
+  labels:
+    app: cloudedu-app
+    release: prometheus-stack
+spec:
+  groups:
+  - name: cloudedu-app
+    interval: 30s
+    rules:
+    - alert: CloudEduAppDown
+      expr: up{job="cloudedu-service-monitor"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "CloudEdu App is down"
+        description: "CloudEdu application has been down for more than 5 minutes"
+    
+    - alert: HighMemoryUsage
+      expr: container_memory_usage_bytes{namespace="cloudedu-services",container="cloudedu-app"} / container_spec_memory_limit_bytes{namespace="cloudedu-services",container="cloudedu-app"} > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage detected"
+        description: "Memory usage is above 80% for more than 5 minutes"
+    
+    - alert: HighCPUUsage
+      expr: rate(container_cpu_usage_seconds_total{namespace="cloudedu-services",container="cloudedu-app"}[5m]) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage detected"
+        description: "CPU usage is above 80% for more than 5 minutes"
+    
+    - alert: PodRestartingTooOften
+      expr: rate(kube_pod_container_status_restarts_total{namespace="cloudedu-services"}[15m]) > 0.1
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod is restarting too often"
+        description: "Pod {{ $labels.pod }} is restarting too frequently"
+    
+    - alert: PVCAlmostFull
+      expr: kubelet_volume_stats_used_bytes{namespace="cloudedu-services"} / kubelet_volume_stats_capacity_bytes{namespace="cloudedu-services"} > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "PVC is almost full"
+        description: "PVC {{ $labels.persistentvolumeclaim }} is more than 80% full"
