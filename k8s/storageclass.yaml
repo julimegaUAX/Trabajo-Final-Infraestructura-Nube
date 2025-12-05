@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: cloudedu-storage
+  labels:
+    app: cloudedu-services
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain

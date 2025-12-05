@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cloudedu-data-pvc
+  namespace: cloudedu-services
+  labels:
+    app: cloudedu-app
+    tier: backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: cloudedu-storage
+  resources:
+    requests:
+      storage: 5Gi
