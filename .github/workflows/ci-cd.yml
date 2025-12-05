@@ -43,6 +43,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r app/requirements.txt
         pip install pytest pytest-cov flake8 black
+      env:
+        PYTHONPATH: ${{ github.workspace }}
     
     - name: Lint with flake8
       run: |
@@ -56,6 +58,7 @@ jobs:
     
     - name: Run tests
       run: |
+        export PYTHONPATH="${PYTHONPATH}:${{ github.workspace }}"
         pytest app/tests/ --cov=app --cov-report=xml --cov-report=term -v || true
       continue-on-error: true
     
