@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: cloudedu-pdb
+  namespace: cloudedu-services
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: cloudedu-app

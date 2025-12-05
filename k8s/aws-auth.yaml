@@ -1,0 +1,35 @@
+# Configuración de aws-auth ConfigMap para EKS
+# Este archivo debe ser aplicado después de crear el cluster EKS
+# Para obtener el mapRoles actual: kubectl get configmap aws-auth -n kube-system -o yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+data:
+  mapRoles: |
+    - rolearn: REPLACE_WITH_NODE_ROLE_ARN
+      username: system:node:{{EC2PrivateDNSName}}
+      groups:
+        - system:bootstrappers
+        - system:nodes
+    - rolearn: REPLACE_WITH_ADMINS_ROLE_ARN
+      username: admin
+      groups:
+        - system:masters
+        - cloudedu-admins
+    - rolearn: REPLACE_WITH_DEVELOPERS_ROLE_ARN
+      username: developer
+      groups:
+        - cloudedu-developers
+    - rolearn: REPLACE_WITH_CICD_ROLE_ARN
+      username: cicd
+      groups:
+        - cloudedu-developers
+  mapUsers: |
+    # Ejemplo de mapeo de usuarios IAM
+    # - userarn: arn:aws:iam::ACCOUNT_ID:user/username
+    #   username: username
+    #   groups:
+    #     - cloudedu-developers
