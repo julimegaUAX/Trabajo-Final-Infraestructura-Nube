@@ -12,6 +12,11 @@ on:
       - 'terraform/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   AWS_REGION: us-east-1
   TF_VERSION: 1.6.0

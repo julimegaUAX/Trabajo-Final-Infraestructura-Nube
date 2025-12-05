@@ -12,6 +12,11 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 env:
   AWS_REGION: us-east-1
   EKS_CLUSTER_NAME: cloudedu-services-eks
