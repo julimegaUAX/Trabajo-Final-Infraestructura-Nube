@@ -42,6 +42,7 @@ def health():
         }
     )
 
+
 @app.route("/api/messages", methods=["GET"])
 def get_messages():
     """Obtiene todos los mensajes almacenados"""
