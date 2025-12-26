@@ -3,9 +3,16 @@ import os
 import json
 import datetime
 from pathlib import Path
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
 
 
 app = Flask(__name__)
+
+# Métricas de Prometheus
+REQUEST_COUNT = Counter('app_request_count', 'Total de peticiones', ['method', 'endpoint', 'status'])
+REQUEST_DURATION = Histogram('app_request_duration_seconds', 'Duración de peticiones', ['method', 'endpoint'])
+MESSAGES_TOTAL = Gauge('app_messages_total', 'Total de mensajes almacenados')
+ACTIVE_CONNECTIONS = Gauge('app_active_connections', 'Conexiones activas')
 
 # Directorio para almacenamiento persistente
 DATA_DIR = Path("/app/data")
@@ -30,12 +37,14 @@ def save_messages(messages):
 @app.route("/")
 def index():
     """Página principal"""
+    REQUEST_COUNT.labels(method='GET', endpoint='/', status=200).inc()
     return render_template("index.html")
 
 
 @app.route("/health")
 def health():
     """Endpoint de salud para Kubernetes"""
+    REQUEST_COUNT.labels(method='GET', endpoint='/health', status=200).inc()
     return jsonify(
         {
             "status": "healthy",
@@ -45,9 +54,17 @@ def health():
     )
 
 
+@app.route("/metrics")
+def metrics():
+    """Endpoint de métricas para Prometheus"""
+    MESSAGES_TOTAL.set(len(load_messages()))
+    return generate_latest(), 200, {'Content-Type': CONTENT_TYPE_LATEST}
+
+
 @app.route("/api/messages", methods=["GET"])
 def get_messages():
     """Obtiene todos los mensajes almacenados"""
+    REQUEST_COUNT.labels(method='GET', endpoint='/api/messages', status=200).inc()
     messages = load_messages()
     return jsonify(messages)
 
@@ -57,6 +74,7 @@ def add_message():
     """Añade un nuevo mensaje"""
     data = request.get_json()
     if not data or "text" not in data:
+        REQUEST_COUNT.labels(method='POST', endpoint='/api/messages', status=400).inc()
         return jsonify({"error": "Se requiere el campo text"}), 400
 
     messages = load_messages()
@@ -70,12 +88,14 @@ def add_message():
     messages.append(new_message)
     save_messages(messages)
 
+    REQUEST_COUNT.labels(method='POST', endpoint='/api/messages', status=201).inc()
     return jsonify(new_message), 201
 
 
 @app.route("/api/info")
 def info():
     """Información del sistema"""
+    REQUEST_COUNT.labels(method='GET', endpoint='/api/info', status=200).inc()
     return jsonify(
         {
             "app": "CloudEdu Services",
