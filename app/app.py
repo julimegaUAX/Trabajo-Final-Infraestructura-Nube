@@ -15,7 +15,8 @@ MESSAGES_TOTAL = Gauge('app_messages_total', 'Total de mensajes almacenados')
 ACTIVE_CONNECTIONS = Gauge('app_active_connections', 'Conexiones activas')
 
 # Directorio para almacenamiento persistente
-DATA_DIR = Path("/app/data")
+# En desarrollo local usa ./data, en producción/Docker usa /app/data
+DATA_DIR = Path(os.getenv("DATA_DIR", "./data"))
 DATA_DIR.mkdir(exist_ok=True)
 MESSAGES_FILE = DATA_DIR / "messages.json"
 
