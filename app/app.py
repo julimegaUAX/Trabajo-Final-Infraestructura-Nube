@@ -4,7 +4,13 @@ import os
 from pathlib import Path
 
 from flask import Flask, jsonify, render_template, request
-from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest
+from prometheus_client import (
+    CONTENT_TYPE_LATEST,
+    Counter,
+    Gauge,
+    Histogram,
+    generate_latest,
+)
 
 
 app = Flask(__name__)
