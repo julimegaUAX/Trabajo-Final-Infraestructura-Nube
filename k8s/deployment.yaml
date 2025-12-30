@@ -26,12 +26,10 @@ spec:
         runAsNonRoot: true
         runAsUser: 1000
         fsGroup: 1000
-        seccompProfile:
-          type: RuntimeDefault
       
       containers:
       - name: cloudedu-app
-        image: nginx:latest
+        image: REPLACE_WITH_ECR_REPOSITORY_URL:latest
         imagePullPolicy: Always
         
         ports:
@@ -65,7 +63,7 @@ spec:
             memory: 128Mi
           limits:
             cpu: 500m
-          readOnlyRootFilesystem: true
+            memory: 512Mi
         
         livenessProbe:
           httpGet:
@@ -73,7 +71,6 @@ spec:
             port: http
           initialDelaySeconds: 30
           periodSeconds: 10
-            add: []
           timeoutSeconds: 5
           failureThreshold: 3
         
@@ -88,15 +85,10 @@ spec:
         
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 1000
-          seccompProfile:
-            type: RuntimeDefault
+          readOnlyRootFilesystem: false
           capabilities:
             drop:
             - ALL
-            add: []
       
       volumes:
       - name: data-volume
