@@ -31,7 +31,7 @@ spec:
       
       containers:
       - name: cloudedu-app
-        image: REPLACE_WITH_ECR_REPOSITORY_URL:latest
+        image: nginx:latest
         imagePullPolicy: Always
         
         ports:
