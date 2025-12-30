@@ -95,6 +95,7 @@ spec:
           capabilities:
             drop:
             - ALL
+            add: []
       
       volumes:
       - name: data-volume
